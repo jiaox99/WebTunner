@@ -1,0 +1,80 @@
+:root {
+  --bg: #16181d;
+  --panel: #20232a;
+  --fg: #e8e6e3;
+  --muted: #8a8f98;
+  --ok: #3ecf8e;
+  --close: #f2c94c;
+  --off: #eb5757;
+  --wood: #5a3a22;
+  font-family: system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+}
+body { margin: 0; }
+#app { max-width: 900px; margin: 0 auto; padding: 16px; }
+
+header { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+select, input, button {
+  font: inherit; color: var(--fg); background: var(--panel);
+  border: 1px solid #3a3f48; border-radius: 6px; padding: 6px 10px;
+}
+input.a4 { width: 4.5em; }
+button.toggle { background: var(--ok); color: #111; border: none; font-weight: 600; padding: 6px 20px; cursor: pointer; }
+.status { color: var(--off); min-height: 1.2em; }
+.toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+.desc, .hint { color: var(--muted); font-size: 14px; }
+
+/* meter */
+.meter { background: var(--panel); border-radius: 12px; padding: 16px 24px 20px; text-align: center; }
+.meter-note { font-size: 48px; font-weight: 700; line-height: 1.1; }
+.meter-sub { color: var(--muted); min-height: 1.2em; }
+.meter-scale { position: relative; height: 40px; margin: 16px 0 8px; border-bottom: 2px solid #3a3f48; }
+.meter-scale::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--muted); }
+.tick { position: absolute; bottom: -22px; font-size: 12px; color: var(--muted); transform: translateX(-50%); }
+.tick.l { left: 0; } .tick.c { left: 50%; } .tick.r { left: 100%; }
+.meter-needle {
+  position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; border-radius: 2px;
+  background: var(--muted); transform: translateX(-50%); transition: left 80ms linear;
+}
+.meter-cents { margin-top: 20px; min-height: 1.2em; }
+.meter.in-tune .meter-needle { background: var(--ok); }
+.meter.close .meter-needle { background: var(--close); }
+.meter.off .meter-needle { background: var(--off); }
+.meter.in-tune .meter-note { color: var(--ok); }
+
+.in-tune { --state: var(--ok); }
+.close { --state: var(--close); }
+.off { --state: var(--off); }
+
+/* guqin */
+.qin {
+  position: relative; margin-top: 16px; padding: 28px 16px 12px;
+  background: linear-gradient(#3b2616, var(--wood) 40%, #3b2616); border-radius: 40px 12px 12px 40px;
+}
+.hui { position: absolute; left: 74px; right: 106px; top: 10px; height: 10px; }
+.hui i {
+  position: absolute; width: 6px; height: 6px; border-radius: 50%;
+  background: #e9e1c8; transform: translateX(50%);
+}
+.hui i.big { width: 9px; height: 9px; top: -1px; }
+.qin-string { display: flex; align-items: center; gap: 10px; padding: 6px 0; cursor: pointer; border-radius: 6px; }
+.qin-string .label { width: 48px; color: #d9c9a8; font-size: 14px; }
+.qin-string .line { flex: 1; background: #d8d2c0; border-radius: 2px; transition: background 80ms; }
+.qin-string .note { width: 80px; text-align: right; color: #d9c9a8; font-size: 14px; }
+.qin-string .note em { font-style: normal; color: var(--muted); margin-left: 4px; }
+.qin-string.locked { background: rgba(255, 255, 255, 0.08); }
+.qin-string.locked .label::after { content: ' 🔒'; font-size: 11px; }
+.qin-string.active .line { background: var(--state); box-shadow: 0 0 8px var(--state); }
+.qin-string.active .label, .qin-string.active .note { color: var(--state); font-weight: 600; }
+
+/* yangqin */
+.yq-grid { display: grid; gap: 4px; margin-top: 16px; }
+.yq-row { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; }
+.cell {
+  padding: 8px 0; text-align: center; font-size: 13px; border-radius: 4px;
+  background: #e8e2d0; color: #222; transition: background 80ms;
+}
+.cell.accidental { background: #3a3f48; color: var(--fg); }
+.cell.empty { background: transparent; }
+.cell.active { background: var(--state); color: #111; font-weight: 700; }
