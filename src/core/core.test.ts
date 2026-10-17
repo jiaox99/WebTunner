@@ -46,6 +46,15 @@ describe('detectPitch', () => {
     });
   }
 
+  // Extremes of the yangqin (F#2 – B6) with its detector range, including a sharp B6.
+  for (const [name, f] of [['yangqin F#2', midiToFreq(noteToMidi('F#2'))], ['yangqin B6', midiToFreq(noteToMidi('B6'))]] as const) {
+    it(`${name} within 0.5 cent`, () => {
+      const r = detectPitch(tone(f, [1, 0.4]), SR, 75, 2300);
+      expect(r).not.toBeNull();
+      expect(Math.abs(centsBetween(r!.freq, f))).toBeLessThan(0.5);
+    });
+  }
+
   it('returns null on silence and noise', () => {
     expect(detectPitch(new Float32Array(4096), SR, 50, 2000)).toBeNull();
     const noise = new Float32Array(4096).map(() => Math.random() - 0.5);

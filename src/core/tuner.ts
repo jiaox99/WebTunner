@@ -27,13 +27,21 @@ export class Tuner {
   }
 
   async start() {
-    // Voice processing would distort or gate the instrument signal.
-    this.stream = await navigator.mediaDevices.getUserMedia({
-      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
-    });
-    this.ctx = new AudioContext();
-    this.analyser = this.ctx.createAnalyser();
-    this.ctx.createMediaStreamSource(this.stream).connect(this.analyser);
+    // Created before the await so it is still inside the click gesture; iOS Safari
+    // leaves contexts created after the permission prompt suspended.
+    const ctx = new AudioContext();
+    try {
+      // Voice processing would distort or gate the instrument signal.
+      this.stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+      });
+    } catch (e) {
+      ctx.close();
+      throw e;
+    }
+    this.ctx = ctx;
+    this.analyser = ctx.createAnalyser();
+    ctx.createMediaStreamSource(this.stream).connect(this.analyser);
     this.setConfig(this.cfg);
     this.tick();
   }

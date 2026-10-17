@@ -34,7 +34,7 @@ export const guqin: Instrument = {
       </div>
       <div class="meter-slot"></div>
       <div class="qin">
-        <div class="hui">${HUI.map((p, i) => `<i class="${i === 6 ? 'big' : ''}" style="right:${p * 100}%"></i>`).join('')}</div>
+        <div class="hui-row"><span></span><div class="hui">${HUI.map((p, i) => `<i class="${i === 6 ? 'big' : ''}" style="right:${p * 100}%"></i>`).join('')}</div><span></span></div>
         <div class="strings"></div>
       </div>
       <p class="hint">自动识别最近的弦；点击某根弦可锁定（调音偏差大时使用），再次点击解除。</p>`;
