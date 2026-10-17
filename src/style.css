@@ -26,7 +26,9 @@ input.a4 { width: 4.5em; }
 button.toggle { background: var(--ok); color: #111; border: none; font-weight: 600; padding: 6px 20px; cursor: pointer; }
 .status { color: var(--off); }
 .status:empty { display: none; }
-.toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; margin-bottom: 12px; }
+.check { display: flex; align-items: center; gap: 6px; padding: 6px 0; font-size: 14px; color: var(--muted); }
+.check input { width: 20px; height: 20px; min-height: 0; margin: 0; padding: 0; }
 .desc, .hint { color: var(--muted); font-size: 14px; }
 
 .meter-slot { position: sticky; top: 0; z-index: 1; padding-bottom: 8px; background: var(--bg); } /* keep the reading visible while scrolling */
@@ -93,6 +95,7 @@ button.toggle { background: var(--ok); color: #111; border: none; font-weight: 6
 .yq-scroll .link { stroke: #d9c9a8; stroke-width: 3; stroke-dasharray: 7 6; opacity: 0.7; }
 .yq-scroll .str path { fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; opacity: 0.7; }
 .yq-scroll .str text { fill: currentColor; font: 600 30px system-ui, sans-serif; }
+.yq-scroll.hide-str .str { display: none; }
 .yq-scroll .str.wound { color: #d9a066; }
 .yq-scroll .str.steel { color: #b8c8dc; }
 .yq-scroll .str.active { color: var(--state); }

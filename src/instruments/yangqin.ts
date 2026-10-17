@@ -85,6 +85,9 @@ const linkSvg = spots
   .map((s) => `<line class="link" x1="${s.dashFrom}" y1="${s.y}" x2="${s.x - 12}" y2="${s.y}"/>`)
   .join('');
 
+/** Kept across view re-creation so switching instruments does not reset it. */
+let showStrings = true;
+
 export const yangqin: Instrument = {
   id: 'yangqin',
   name: '扬琴',
@@ -92,7 +95,9 @@ export const yangqin: Instrument = {
 
   createView(root, ctx) {
     root.innerHTML = `
-      <div class="toolbar"><span class="desc">402 型 C 调基本音位 · F–♯a³ · 点击音名锁定目标音</span></div>
+      <div class="toolbar"><span class="desc">402 型 C 调基本音位 · F–♯a³ · 点击音名锁定目标音</span>
+        <label class="check"><input type="checkbox" class="show-str"${showStrings ? ' checked' : ''}> 显示弦位</label>
+      </div>
       <div class="meter-slot"></div>
       <div class="yq-scroll">
         <svg viewBox="${VIEW.x} ${VIEW.y} ${VIEW.w} ${VIEW.h}" role="img" aria-label="402 型扬琴音位与弦位图">
@@ -111,6 +116,8 @@ export const yangqin: Instrument = {
       </div>
       <p class="hint">击弦后，该音在琴上的位置亮起（同音异位的两处同时亮），右侧括号里的数字是这些音位用的琴弦号：15#–25# 缠弦（铜色），26#–30# 钢弦（银色）。偏差较大时点击要调的音名锁定目标，再次点击解除；同度的几根弦听拍音消失为准。</p>`;
     const scroller = root.querySelector<HTMLElement>('.yq-scroll')!;
+    const strToggle = root.querySelector<HTMLInputElement>('.show-str')!;
+    scroller.classList.toggle('hide-str', !showStrings);
     const svg = scroller.querySelector('svg')!;
     const dots = [...svg.querySelectorAll('.dot')];
     const markEls = [...svg.querySelectorAll('.mark')];
@@ -150,7 +157,7 @@ export const yangqin: Instrument = {
         }
         const lit = locked ? [locked] : marks.filter((m) => m.midi === best);
         const strings = [...new Set(lit.map((m) => strLabel(spots[m.spot].str)))].join(' / ');
-        meter.show(`${groupName(best)} · ${sciName(best)}`, bestCents, freq, strings);
+        meter.show(`${groupName(best)} · ${sciName(best)}`, bestCents, freq, showStrings ? strings : '');
         const state = tuneState(bestCents);
         for (const m of lit) {
           const i = marks.indexOf(m);
@@ -162,6 +169,12 @@ export const yangqin: Instrument = {
           reveal(spots[lit[0].spot].x);
         }
       },
+    };
+
+    strToggle.onchange = () => {
+      showStrings = strToggle.checked;
+      scroller.classList.toggle('hide-str', !showStrings);
+      view.update(last);
     };
 
     svg.onclick = (e) => {
