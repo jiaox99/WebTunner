@@ -46,8 +46,8 @@ describe('detectPitch', () => {
     });
   }
 
-  // Extremes of the yangqin (F#2 – B6) with its detector range, including a sharp B6.
-  for (const [name, f] of [['yangqin F#2', midiToFreq(noteToMidi('F#2'))], ['yangqin B6', midiToFreq(noteToMidi('B6'))]] as const) {
+  // Extremes of the yangqin (F2 – B♭6) with its detector range.
+  for (const [name, f] of [['yangqin F2', midiToFreq(noteToMidi('F2'))], ['yangqin Bb6', midiToFreq(noteToMidi('Bb6'))]] as const) {
     it(`${name} within 0.5 cent`, () => {
       const r = detectPitch(tone(f, [1, 0.4]), SR, 75, 2300);
       expect(r).not.toBeNull();

@@ -1,60 +1,106 @@
 /**
- * 402 型扬琴音位, transcribed from the "402型扬琴音位图" chart
- * (https://www.huain.com/attach/uploadfile/article/images/2024/0607/20240607084138196002.jpg).
+ * 402 型扬琴 C 调基本音位 and 弦位 (string numbers), transcribed from the page
+ * "402型扬琴C调音位图[基本音位]及弦位图".
  *
- * Coordinates are that chart's pixel coordinates (dots of a bridge are spread evenly between
- * its first and last dot), so only the relative layout is meaningful.
+ * Each row of a bridge is one string group, so both notes of a row share its string number.
+ * 15#–25# are wound strings (缠弦), 26#–30# are steel strings (钢弦).
+ * Coordinates follow the page's layout (scaled by S); only relative positions are meaningful.
  * Notes use scientific names: the chart's 大字组 G is G2, 小字组 c is C3, c¹ is C4, a³ is A6.
  */
 export interface Spot {
   x: number;
   y: number;
-  /** Note sounding left / right of the bridge: 'F#2', 'Bb6/B6' (either one), '(E2)' (optional). */
+  /** Note sounding left / right of the bridge. */
   l?: string;
   r?: string;
+  /** String number (琴弦号) of this row. */
+  str: number;
+  /** Draw a dashed connector from this x to the spot (the chart's dashed ♯a³ / ♯g³). */
+  dashFrom?: number;
 }
 
 export interface Bridge {
-  bar: [x1: number, y1: number, x2: number, y2: number];
+  bar?: [x1: number, y1: number, x2: number, y2: number];
+  /** Distance from the bridge to the string-number bracket; none when the chart draws no bracket. */
+  braceDx?: number;
   spots: Spot[];
 }
 
-export const VIEW = { x: 20, y: 60, w: 1760, h: 1190 };
-export const BODY = '125,110 1450,110 1745,1200 60,1200';
+export const VIEW = { x: -130, y: 240, w: 1190, h: 1140 };
+export const BODY = '-80,264 904,264 1040,1360 -120,1360';
 
-function bridge(top: [number, number], bottom: [number, number], pairs: [l: string, r: string][]): Bridge {
-  const n = pairs.length - 1;
-  const dx = (bottom[0] - top[0]) / n;
-  const dy = (bottom[1] - top[1]) / n;
+/** Page pixels -> view units, keeps ~74 units between rows. */
+const S = 0.8;
+
+function bridge(
+  top: [number, number],
+  bottom: [number, number],
+  braceDx: number,
+  rows: [l: string, r: string, str: number][],
+): Bridge {
+  const n = rows.length - 1;
+  const x0 = top[0] * S;
+  const y0 = top[1] * S;
+  const dx = ((bottom[0] - top[0]) * S) / n;
+  const dy = ((bottom[1] - top[1]) * S) / n;
   return {
-    bar: [top[0] - dx / 3, top[1] - dy / 3, bottom[0] + dx / 3, bottom[1] + dy / 3],
-    spots: pairs.map(([l, r], i) => ({ x: top[0] + dx * i, y: top[1] + dy * i, l: l || undefined, r: r || undefined })),
+    bar: [x0 - dx / 3, y0 - dy / 3, x0 + dx * (n + 1 / 3), y0 + dy * (n + 1 / 3)],
+    braceDx,
+    spots: rows.map(([l, r, str], i) => ({ x: x0 + dx * i, y: y0 + dy * i, l: l || undefined, r: r || undefined, str })),
   };
 }
 
+// moved left of its page position so its string number clears the main bridge's labels
+const left = bridge([-30, 458], [-30, 636], 104, [
+  ['', 'F6', 30], ['', 'D#6', 30], ['', 'C#6', 30],
+]);
+
+const main = bridge([284, 428], [266, 1539], 104, [
+  ['F#6', 'A6', 30], ['E6', 'G6', 30], ['D6', 'A#5', 30], ['C6', 'G#5', 30],
+  ['B5', 'F5', 29], ['A5', 'D#5', 29],
+  ['G5', 'C#5', 28], ['F#5', 'B4', 28], ['E5', 'A4', 28],
+  ['D5', 'G4', 27], ['C5', 'F4', 27],
+  ['A#4', 'D#4', 26], ['G#4', 'C#4', 26],
+]);
+
+// ♯a³ and ♯g³ hang off the first two rows of the main bridge by dashed lines, i.e. the same strings.
+const BRACE_END = 104 + 8;
+const top: Bridge = {
+  spots: [0, 1].map((i) => ({
+    x: 525 * S,
+    y: main.spots[i].y,
+    r: ['A#6', 'G#6'][i],
+    str: main.spots[i].str,
+    dashFrom: main.spots[i].x + BRACE_END,
+  })),
+};
+
 export const BRIDGES: Bridge[] = [
-  // far-left short bridge: f³ ♭e³ ♯c³
-  bridge([193, 215], [167, 358], [['', 'F6'], ['', 'Eb6'], ['', 'C#6']]),
-  // main left bridge, both sides are struck
-  bridge([431, 174], [306, 1055], [
-    ['F#6', 'A6'], ['E6', 'G6'], ['D6', 'Bb5'], ['C6', 'G#5'], ['B5', 'F5'], ['A5', 'Eb5'], ['G5', 'C#5'],
-    ['F#5', 'B4'], ['E5', 'A4'], ['D5', 'G4'], ['C5', 'F4'], ['Bb4', 'Eb4'], ['G#4', 'C#4'],
+  left,
+  main,
+  top,
+  bridge([586, 629], [633, 1559], 16, [
+    ['E5', '', 25], ['D5', '', 25],
+    ['C5', '', 24], ['A#4', '', 24], ['G#4', '', 24],
+    ['F#4', '', 23], ['E4', '', 23],
+    ['D4', '', 22], ['C4', '', 22],
+    ['A#3', '', 21], ['G#3', '', 21],
   ]),
-  // short bridge at the top: ♭b³ or b³, ♯g³
-  bridge([813, 177], [813, 243], [['', 'Bb6/B6'], ['', 'G#6']]),
-  bridge([753, 275], [753, 1020], [
-    ['E5', ''], ['D5', ''], ['C5', ''], ['Bb4', ''], ['G#4', ''], ['F#4', ''], ['E4', ''], ['D4', ''], ['C4', ''],
-    ['Bb3', ''], ['G#3', ''],
-  ]),
-  bridge([1047, 355], [1107, 1023], [
-    ['G4', ''], ['F4', ''], ['Eb4', ''], ['C#4', ''], ['B3', ''], ['A3', ''], ['G3', ''], ['F3', ''], ['Eb3', ''],
-    ['C#3', ''],
+  bridge([794, 730], [839, 1574], 16, [
+    ['G4', '', 23], ['F4', '', 23],
+    ['D#4', '', 22],
+    ['C#4', '', 21], ['B3', '', 21], ['A3', '', 21],
+    ['G3', '', 20], ['F3', '', 20],
+    ['D#3', '', 19], ['C#3', '', 19],
   ]),
   // bass bridge
-  bridge([1352, 375], [1440, 1039], [
-    ['C4', ''], ['Bb3', ''], ['G#3', ''], ['F#3', ''], ['E3', ''], ['D3', ''], ['C3', ''], ['B2', ''], ['A2', ''],
-    ['G2', ''],
+  bridge([1033, 637], [1078, 1592], 16, [
+    ['C4', '', 21], ['A#3', '', 21],
+    ['G#3', '', 20], ['F#3', '', 20],
+    ['E3', '', 19], ['D3', '', 19],
+    ['C3', '', 18], ['B2', '', 18],
+    ['A2', '', 17],
+    ['G2', '', 16],
+    ['F2', '', 15],
   ]),
-  // lowest note; (E) is optional
-  { bar: [1551, 1080, 1547, 1133], spots: [{ x: 1547, y: 1133, l: 'F#2', r: '(E2)' }] },
 ];

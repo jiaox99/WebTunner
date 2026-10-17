@@ -29,6 +29,8 @@ button.toggle { background: var(--ok); color: #111; border: none; font-weight: 6
 .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
 .desc, .hint { color: var(--muted); font-size: 14px; }
 
+.meter-slot { position: sticky; top: 0; z-index: 1; padding-bottom: 8px; background: var(--bg); } /* keep the reading visible while scrolling */
+
 /* meter */
 .meter { background: var(--panel); border-radius: 12px; padding: 16px 24px 20px; text-align: center; }
 .meter-note { font-size: 48px; font-weight: 700; line-height: 1.1; }
@@ -79,7 +81,7 @@ button.toggle { background: var(--ok); color: #111; border: none; font-weight: 6
 
 /* yangqin */
 .yq-scroll { margin-top: 16px; overflow-x: auto; border-radius: 12px; }
-.yq-scroll svg { display: block; width: 100%; height: auto; user-select: none; }
+.yq-scroll svg { display: block; width: 100%; max-width: 760px; margin: 0 auto; height: auto; user-select: none; }
 .yq-scroll .body { fill: url(#yq-wood); stroke: #2a170b; stroke-width: 6; }
 .yq-scroll .bar { stroke: #e9e1c8; stroke-width: 7; stroke-linecap: round; }
 .yq-scroll .dot { fill: #d9c9a8; stroke: transparent; stroke-width: 14; transition: fill 80ms; }
@@ -88,13 +90,19 @@ button.toggle { background: var(--ok); color: #111; border: none; font-weight: 6
 .yq-scroll .mark.locked .hit { fill: rgba(255, 255, 255, 0.1); stroke: #d9c9a8; stroke-width: 3; stroke-dasharray: 8 6; }
 .yq-scroll .mark.active text { fill: var(--state); font-weight: 700; }
 .yq-scroll .dot.active { fill: var(--state); stroke: var(--state); stroke-opacity: 0.35; }
+.yq-scroll .link { stroke: #d9c9a8; stroke-width: 3; stroke-dasharray: 7 6; opacity: 0.7; }
+.yq-scroll .str path { fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; opacity: 0.7; }
+.yq-scroll .str text { fill: currentColor; font: 600 30px system-ui, sans-serif; }
+.yq-scroll .str.wound { color: #d9a066; }
+.yq-scroll .str.steel { color: #b8c8dc; }
+.yq-scroll .str.active { color: var(--state); }
+.yq-scroll .str.active path { opacity: 1; }
 
 /* phones */
 @media (max-width: 600px) {
   #app { padding-top: 12px; padding-bottom: 12px; }
   select, input, button { font-size: 16px; min-height: 44px; } /* 16px stops iOS zooming on focus */
   header { gap: 8px; }
-  .meter-slot { position: sticky; top: 0; z-index: 1; padding-bottom: 8px; background: var(--bg); } /* keep the reading visible while scrolling */
   header .instrument { flex: 1; }
   button.toggle { flex-basis: 100%; }
   .meter { padding: 12px 16px 16px; }
@@ -107,5 +115,5 @@ button.toggle { background: var(--ok); color: #111; border: none; font-weight: 6
   .qin-string { grid-template-columns: 1fr auto; row-gap: 4px; padding: 4px 0; min-height: 44px; }
   .qin-string .line { grid-column: 1 / -1; grid-row: 2; }
 
-  .yq-scroll svg { min-width: 1100px; } /* keeps labels readable and tappable; scrolls sideways */
+  .yq-scroll svg { min-width: 720px; max-width: none; } /* keeps labels readable and tappable; scrolls sideways */
 }

@@ -23,11 +23,11 @@ export function createMeter(el: HTMLElement) {
   const centsEl = root.querySelector<HTMLElement>('.meter-cents')!;
 
   return {
-    show(label: string, cents: number, freq: number) {
+    show(label: string, cents: number, freq: number, extra = '') {
       const state = tuneState(cents);
       root.className = `meter ${state}`;
       note.textContent = label;
-      sub.textContent = `${freq.toFixed(2)} Hz`;
+      sub.textContent = `${freq.toFixed(2)} Hz${extra && ` · ${extra}`}`;
       needle.style.left = `${50 + Math.max(-50, Math.min(50, cents))}%`;
       const c = `${cents > 0 ? '+' : ''}${cents.toFixed(1)} 音分`;
       centsEl.textContent =
