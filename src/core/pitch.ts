@@ -4,7 +4,10 @@ export interface PitchResult {
   clarity: number;
 }
 
-const SILENCE_RMS = 0.005;
+// Quiet low notes (e.g. yangqin F2 through a phone mic) sit around 0.003–0.005.
+const SILENCE_RMS = 0.002;
+const FALLBACK_THRESHOLD = 0.2;
+const OCTAVE_TOLERANCE = 0.05;
 
 /**
  * YIN pitch detection (de Cheveigné & Kawahara, 2002).
@@ -53,7 +56,26 @@ export function detectPitch(
       break;
     }
   }
-  if (tau < 0) return null;
+  if (tau < 0) {
+    // Low strings with a weak fundamental never dip below the strict threshold;
+    // accept the deepest valley if it is still clearly periodic.
+    let best = tauMin;
+    for (let t = tauMin + 1; t <= tauMax; t++) if (d[t] < d[best]) best = t;
+    if (d[best] >= FALLBACK_THRESHOLD) return null;
+    // A valley at k periods can edge out the true one; prefer the shorter period
+    // when a nearly-as-deep valley sits at best/k.
+    for (let k = 4; k >= 2; k--) {
+      const c = Math.round(best / k);
+      if (c - 2 < tauMin) continue;
+      let t = c - 2;
+      for (let j = c - 1; j <= c + 2; j++) if (d[j] < d[t]) t = j;
+      if (d[t] < d[best] + OCTAVE_TOLERANCE) {
+        best = t;
+        break;
+      }
+    }
+    tau = best;
+  }
 
   const clarity = 1 - d[tau];
   const period = interpolate(d, tau);

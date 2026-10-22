@@ -55,6 +55,16 @@ describe('detectPitch', () => {
     });
   }
 
+  it('finds a noisy quiet low note via the fallback without dropping an octave', () => {
+    for (const note of ['F2', 'F3']) {
+      const f = midiToFreq(noteToMidi(note));
+      const buf = tone(f, [1, 0.5, 0.3]).map((v, i) => 0.1 * v + 0.004 * Math.sin(i * i * 0.37));
+      const r = detectPitch(buf, SR, 75, 2300);
+      expect(r).not.toBeNull();
+      expect(Math.abs(centsBetween(r!.freq, f))).toBeLessThan(10);
+    }
+  });
+
   it('returns null on silence and noise', () => {
     expect(detectPitch(new Float32Array(4096), SR, 50, 2000)).toBeNull();
     const noise = new Float32Array(4096).map(() => Math.random() - 0.5);
