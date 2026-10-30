@@ -1,10 +1,11 @@
 import './style.css';
 import { Tuner } from './core/tuner';
+import { guitar, ukulele } from './instruments/fretted';
 import { guqin } from './instruments/guqin';
 import type { Instrument, InstrumentView } from './instruments/types';
 import { yangqin } from './instruments/yangqin';
 
-const INSTRUMENTS: Instrument[] = [guqin, yangqin];
+const INSTRUMENTS: Instrument[] = [guqin, yangqin, guitar, ukulele];
 
 const app = document.querySelector<HTMLElement>('#app')!;
 app.innerHTML = `
