@@ -92,6 +92,8 @@ export const yangqin: Instrument = {
   id: 'yangqin',
   name: '扬琴',
   detector: { minFreq: 75, maxFreq: 2300, bufferSize: 4096 },
+  // 竹槌击弦：起音极快、泛音明亮并略有不谐
+  timbre: { partials: [1, 0.9, 0.7, 0.6, 0.4, 0.3, 0.2, 0.15], decay: 1.8, tilt: 0.8, attack: 0.001, inharmonicity: 0.0004 },
 
   createView(root, ctx) {
     root.innerHTML = `
@@ -181,6 +183,7 @@ export const yangqin: Instrument = {
       const g = (e.target as Element).closest('.mark');
       if (!g) return;
       const m = marks[markEls.indexOf(g)];
+      if (ctx.playMode()) return ctx.play(m.midi);
       locked = locked === m ? null : m;
       markEls.forEach((el, i) => el.classList.toggle('locked', marks[i] === locked));
       view.update(last);

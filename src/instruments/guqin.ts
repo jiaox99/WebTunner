@@ -25,6 +25,8 @@ export const guqin: Instrument = {
   id: 'guqin',
   name: '古琴',
   detector: { minFreq: 50, maxFreq: 700, bufferSize: 4096 },
+  // 低音为主，笔记本喇叭放不出基频，所以二、三泛音略强
+  timbre: { partials: [0.8, 1, 0.6, 0.3, 0.15], decay: 3.5, tilt: 1, attack: 0.005 },
 
   createView(root, ctx) {
     root.innerHTML = `
@@ -63,6 +65,7 @@ export const guqin: Instrument = {
       rows.forEach((r, i) => {
         r.classList.toggle('locked', locked === i);
         r.onclick = () => {
+          if (ctx.playMode()) return ctx.play(noteToMidi(tuning.notes[i]));
           locked = locked === i ? null : i;
           rows.forEach((x, j) => x.classList.toggle('locked', locked === j));
         };

@@ -1,4 +1,5 @@
 import { centsBetween, midiToFreq, midiToName, noteToMidi } from '../core/music';
+import type { Timbre } from '../core/synth';
 import type { DetectorConfig } from '../core/tuner';
 import { createMeter, tuneState } from '../ui/meter';
 import type { Instrument } from './types';
@@ -15,12 +16,14 @@ function createFretted(opts: {
   id: string;
   name: string;
   detector: DetectorConfig;
+  timbre: Timbre;
   tunings: Tuning[];
 }): Instrument {
   return {
     id: opts.id,
     name: opts.name,
     detector: opts.detector,
+    timbre: opts.timbre,
 
     createView(root, ctx) {
       root.innerHTML = `
@@ -58,6 +61,7 @@ function createFretted(opts: {
         rows.forEach((r, i) => {
           r.classList.toggle('locked', locked === i);
           r.onclick = () => {
+            if (ctx.playMode()) return ctx.play(noteToMidi(tuning.notes[i]));
             locked = locked === i ? null : i;
             rows.forEach((x, j) => x.classList.toggle('locked', locked === j));
           };
@@ -101,6 +105,7 @@ export const guitar = createFretted({
   name: '吉他',
   // 最低 D2（降半音/Drop D 约 73 Hz），最高 E4 及调偏余量
   detector: { minFreq: 60, maxFreq: 700, bufferSize: 4096 },
+  timbre: { partials: [1, 0.8, 0.6, 0.4, 0.3, 0.2, 0.15, 0.1], decay: 2.5, tilt: 0.5, attack: 0.003, inharmonicity: 0.0001 },
   tunings: [
     { name: '标准', desc: 'E A D G B E', notes: ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'] },
     { name: 'Drop D', desc: '六弦降到 D', notes: ['D2', 'A2', 'D3', 'G3', 'B3', 'E4'] },
@@ -115,6 +120,7 @@ export const ukulele = createFretted({
   name: '尤克里里',
   // 最低 D3（巴里通）约 147 Hz，最高 A4 及调偏余量
   detector: { minFreq: 100, maxFreq: 900, bufferSize: 4096 },
+  timbre: { partials: [1, 0.5, 0.3, 0.15, 0.08], decay: 1.2, tilt: 0.6, attack: 0.003 },
   tunings: [
     { name: '标准', desc: 'G C E A（四弦高音 G）', notes: ['G4', 'C4', 'E4', 'A4'] },
     { name: 'Low G', desc: '四弦低八度 G', notes: ['G3', 'C4', 'E4', 'A4'] },

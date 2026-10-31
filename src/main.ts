@@ -1,4 +1,6 @@
 import './style.css';
+import { midiToFreq } from './core/music';
+import { playNote } from './core/synth';
 import { Tuner } from './core/tuner';
 import { guitar, ukulele } from './instruments/fretted';
 import { guqin } from './instruments/guqin';
@@ -12,6 +14,7 @@ app.innerHTML = `
   <header>
     <select class="instrument">${INSTRUMENTS.map((x) => `<option value="${x.id}">${x.name}</option>`).join('')}</select>
     <label>A4 <input class="a4" type="number" min="415" max="466" step="1" value="440"> Hz</label>
+    <label class="check"><input type="checkbox" class="play-mode"> 播放模式</label>
     <button class="toggle">开始</button>
   </header>
   <p class="status"></p>
@@ -19,6 +22,7 @@ app.innerHTML = `
 
 const instSelect = app.querySelector<HTMLSelectElement>('.instrument')!;
 const a4Input = app.querySelector<HTMLInputElement>('.a4')!;
+const playModeInput = app.querySelector<HTMLInputElement>('.play-mode')!;
 const toggle = app.querySelector<HTMLButtonElement>('.toggle')!;
 const status = app.querySelector<HTMLElement>('.status')!;
 const main = app.querySelector<HTMLElement>('main')!;
@@ -28,7 +32,11 @@ let view: InstrumentView;
 const tuner = new Tuner(INSTRUMENTS[0].detector, (f) => view.update(f));
 
 function mount(inst: Instrument) {
-  view = inst.createView(main, { a4: () => a4 });
+  view = inst.createView(main, {
+    a4: () => a4,
+    playMode: () => playModeInput.checked,
+    play: (midi) => playNote(midiToFreq(midi, a4), inst.timbre),
+  });
   tuner.setConfig(inst.detector);
 }
 
